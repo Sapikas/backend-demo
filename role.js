@@ -25,9 +25,9 @@ ac.grant('superAdmin')
   .extend("user")
   .extend("supervisor")
   .extend('admin')
-  .readAny(['profile'])
-  .updateAny(['profile'])
-  .deleteAny(['profile'])
+  .readAny(['profile', 'diets'])
+  .updateAny(['profile', 'diets', 'dietAgency'])
+  .deleteAny(['profile', 'diets', 'dietAgency'])
  
 return ac;
 })();
