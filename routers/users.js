@@ -2,7 +2,6 @@ const express = require('express');
 const { body } = require('express-validator/check');
 
 const User = require('../models/user');
-const redis_client = require('../redis_connect');
 const authController = require('../controllers/users');
 const isAuth = require('../middleware/is-auth');
 const { rolePermission } = require('../middleware/grant-access');

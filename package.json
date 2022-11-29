@@ -19,8 +19,7 @@
     "express": "^4.17.1",
     "express-validator": "^6.14.2",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^6.0.12",
-    "redis": "^4.0.1"
+    "mongoose": "^6.7.4"
   },
   "devDependencies": {
     "nodemon": "^2.0.19"
