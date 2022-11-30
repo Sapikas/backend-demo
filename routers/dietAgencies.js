@@ -23,7 +23,6 @@ router.post("/search", isAuth, async (req,res)=>{
 router.post('/', isAuth,
     [
         body('email')
-            .optional()
             .isEmail()
             .withMessage('Please enter a valid email.')
             .custom((value, { req }) => {

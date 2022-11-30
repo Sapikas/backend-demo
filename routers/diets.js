@@ -41,6 +41,20 @@ router.post(
 router.put(
     '/:id',
     isAuth,
+    [
+        body('email')
+        .optional()
+        .isEmail()
+        .withMessage('Please enter a valid email.')
+        .custom((value, { req }) => {
+            return User.findOne({ email: value }).then(userDoc => {
+                if (!userDoc) {
+                    return Promise.reject('E-Mail address not exists!');
+                }
+            });
+        })
+        .normalizeEmail(),
+    ],
     rolePermission('updateOwn', 'diets'),
     dietController.updateDiet
 );

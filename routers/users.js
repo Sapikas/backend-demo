@@ -10,8 +10,6 @@ const router = express.Router();
 
 router.get('/', isAuth, rolePermission('readAny', 'profile'), authController.getUsers);
 
-router.get('/:id',  isAuth, rolePermission('readAny', 'profile'), authController.getUserById);
-
 router.get('/myprofile', isAuth, rolePermission('readOwn', 'profile'), authController.getMyProfile);
 
 router.post(
@@ -60,7 +58,7 @@ router.post(
     authController.login
 );
 
-router.put('/:id', isAuth,
+router.put('/myprofile', isAuth, 
     [
         body('email')
             .optional()
@@ -84,12 +82,10 @@ router.put('/:id', isAuth,
             .not()
             .isEmpty()
     ],
-    rolePermission('updateAny', 'profile'),
-    authController.updateUser
+    rolePermission('updateOwn', 'profile'), 
+    authController.updateMyProfile
 );
 
-router.put('/myprofile', isAuth, rolePermission('readOwn', 'profile'), authController.updateMyProfile);
-
-router.delete('/myProfile', isAuth, rolePermission('deleteOwn', 'profile'), authController.deleteUser);
+router.delete('/myprofile', isAuth, rolePermission('deleteOwn', 'profile'), authController.deleteUser);
 
 module.exports = router;

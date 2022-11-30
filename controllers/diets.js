@@ -5,7 +5,7 @@ const User = require('../models/user');
 
 exports.getDiets = async (req, res, next) => {
   try {
-    const user = await User.findById(req.userId).select('-passwordHash');
+    const user = await User.findById(req.userId).select('dietAgency');
     const currentPage = req.query.page || 1;
     const perPage = 2;
     let totalItems;
@@ -18,7 +18,7 @@ exports.getDiets = async (req, res, next) => {
     totalItems = documents;
     const dietsList = await Diets.find({ Dietitians: user.dietAgency[0] }).skip((currentPage - 1) * perPage).limit(perPage);
     res.status(200).json({ msg: 'Success', data: dietsList, totalItems: totalItems });
-  } catch(err) {
+  } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
     }
@@ -34,14 +34,14 @@ exports.getDiet = async (req ,res, next) => {
       error.statusCode = 404;
       throw error;
     }
-    const user = await User.findById(req.userId);
+    const user = await User.findById(req.userId).select('email dietAgency');
     if (user.email !== diets.email && user?.dietAgency[0].toString() !== diets.Dietitians.toString()) {
       const error = new Error('You are not authorized to see the diet');
       error.statusCode = 401;
       throw error;
     }
     res.status(200).json({ msg: 'Success', data: diets });
-  } catch(err) {
+  } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
     }
@@ -51,7 +51,7 @@ exports.getDiet = async (req ,res, next) => {
 
 exports.getUserDiets = async (req, res, next) => {
   try {
-    const user = await User.findById(req.userId);
+    const user = await User.findById(req.userId).select('email');
     const dietsList = await Diets.find({ email: user.email }).select('-Dietitians');
     if (dietsList.length === 0) {
       const error = new Error('Could not find diets');
@@ -59,7 +59,7 @@ exports.getUserDiets = async (req, res, next) => {
       throw error;
     }
     res.status(200).json({ msg: 'Success', data: dietsList });
-  }catch(err) {
+  } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
     }
@@ -75,7 +75,7 @@ exports.createDiet = async (req, res, next) => {
       error.statusCode = 422;
       throw error;
     }
-    const user = await User.findById(req.userId).select('-passwordHash');
+    const user = await User.findById(req.userId).select('dietAgency diets');
     const userDietAgency = user.dietAgency[0];
     let diets = new Diets({
       Dietitians: userDietAgency,
@@ -86,7 +86,7 @@ exports.createDiet = async (req, res, next) => {
     await user.save();
     const savedDiet = await diets.save();
     res.status(201).json({ msg: 'Success', data: savedDiet });
-  } catch(err) {
+  } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
     }
@@ -96,7 +96,7 @@ exports.createDiet = async (req, res, next) => {
 
 exports.updateDiet = async (req, res, next) => {
   try {
-    const user = await User.findById(req.userId);
+    const user = await User.findById(req.userId).select('diets');
     const el = user.diets.find(el => el.toString() === req.params.id);
     if (!el) {
       const error = new Error('No diets found!');
@@ -124,7 +124,7 @@ exports.updateDiet = async (req, res, next) => {
 
 exports.deleteDiet = async (req, res, next) => {
   try {
-    let user = await User.findById(req.userId);
+    let user = await User.findById(req.userId).select('diets');
     const el = user.diets.find(el => el.toString() === req.params.id);
     if (!el) {
       const error = new Error('No diets found!');

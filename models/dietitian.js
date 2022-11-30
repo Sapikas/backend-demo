@@ -41,15 +41,7 @@ const dietitianSchema = mongoose.Schema({
         type: Date,
         default: Date.now
     }
-})
-
-dietitianSchema.virtual('id').get(function(){
-    return this._id.toHexString();
-})
-
-dietitianSchema.set('toJSON', {
-    virtuals: true
-})
+});
 
 const dietAgency = mongoose.model('dietAgency', dietitianSchema)
 

@@ -18,14 +18,6 @@ const dietsSchema = mongoose.Schema({
     ]
 });
 
-dietsSchema.virtual('id').get(function() {
-    return this._id.toHexString();
-});
-
-dietsSchema.set('toJSON', {
-    virtuals: true
-});
-
 const Diets = mongoose.model('Diets', dietsSchema);
 
 module.exports = Diets;

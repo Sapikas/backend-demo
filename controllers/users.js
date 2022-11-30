@@ -6,25 +6,8 @@ const User = require('../models/user');
 
 exports.getUsers = async (req, res, next) => {
   try {
-    const users = await User.find().select('-passwordHash');
-    res.status(200).json({ message: 'Success', data: users });
-  }catch(err) {
-    if (!err.statusCode) {
-      err.statusCode = 404;
-    }
-    next(err);
-  }
-}
-
-exports.getUserById = async (req, res, next) => {
-  try {
-    const user = await User.findById(req.params.id).select('-passwordHash');
-    if (!user){
-      const error = new Error('User not found');
-      error.statusCode = 404;
-      throw error;
-    }
-    res.status(200).json({ message: `User with id ${req.params.id}`, data: user});
+    const users = await User.find().select('-passwordHash').sort([['name', 'asc']]);
+    res.status(200).json({ msg: 'Success', data: users });
   }catch(err) {
     if (!err.statusCode) {
       err.statusCode = 404;
@@ -35,14 +18,14 @@ exports.getUserById = async (req, res, next) => {
 
 exports.getMyProfile = async (req, res, next) => {
   try {
-    const user = await Users.findById(req.userId).select('-passwordHash');
+    const user = await User.findById(req.userId).select('-passwordHash -dateCreated -diets');
     if (!user){
       const error = new Error('User not found');
       error.statusCode = 404;
       throw error;
     }
-    res.status(200).json({ message: 'Success', data: user});
-  } catch(err) {
+    res.status(200).json({ msg: 'Success', data: user });
+  } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 404;
     }
@@ -77,8 +60,8 @@ exports.signup = async (req, res, next) => {
       country: req.body.country
     });
     const savedUser = await user.save();
-    res.status(201).json({message: 'Success', userId: savedUser._id});
-  }catch(err) {
+    res.status(201).json({ msg: 'Success', userId: savedUser._id });
+  } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
     }
@@ -105,7 +88,6 @@ exports.login = async (req, res, next) => {
       error.statusCode = 401;
       next(error);
     }
-    console.log('user: ', user);
     const token = jwt.sign(
       {
         email: user.email,
@@ -116,50 +98,7 @@ exports.login = async (req, res, next) => {
       { expiresIn: '1h' }
     );
     res.status(200).json({ token: token, userId: user._id.toString() });
-  }catch(err) {
-    if (!err.statusCode) {
-      err.statusCode = 500;
-    }
-    next(err);
-  }
-}
-
-exports.updateUser = async (req, res, next) => {
-  try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      const error = new Error('Validation failed');
-      error.statusCode = 422;
-      error.data = errors.array();
-      throw error;
-    }
-    const userFind = await User.findById(req.params.id);
-    const userUpdate = await User.findByIdAndUpdate(
-      req.params.id,
-      {
-          name: req.body.name ? req.body.name : userFind.name,
-          email: req.body.email ? req.body.email : userFind.email,
-          passwordHash: req.body.passwordHash ? bcrypt.hashSync(req.body.passwordHash,10) : userFind.passwordHash,
-          phone: req.body.phone ? req.body.phone : userFind.phone,
-          role: req.body.role ? req.body.role : userFind.role,
-          dietAgency: req.body.dietAgency ? req.body.dietAgency : userFind.dietAgency,
-          street: req.body.street ? req.body.street : userFind.street,
-          apartment: req.body.apartment ? req.body.apartment : userFind.apartment,
-          zip: req.body.zip ? req.body.zip : userFind.zip,
-          city: req.body.city ? req.body.city : userFind.city,
-          country: req.body.country ? req.body.country : userFind.country
-      },
-      {
-          new: true
-      }
-    );
-    if (!userUpdate) {
-      const error = new Error('Cannot update the user');
-      error.statusCode = 404;
-      next(error);
-    }
-    res.status(200).json({ message: 'Success', user: userUpdate });
-  }catch(err) {
+  } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
     }
@@ -176,7 +115,7 @@ exports.updateMyProfile = async (req, res, next) => {
       error.data = errors.array();
       next(error);
     }
-    const userFind = await User.findById(req.userId);
+    const userFind = await User.findById(req.userId).select('-dateCreated');
     const userUpdate = await User.findByIdAndUpdate(
       req.userId,
       {
@@ -201,8 +140,8 @@ exports.updateMyProfile = async (req, res, next) => {
       error.statusCode = 404;
       throw error;
     }
-    res.status(200).json({ message: 'Update user', user: userUpdate });
-  }catch(err) {
+    res.status(200).json({ msg: 'Update user', user: userUpdate });
+  } catch(err) {
     if (!err.statusCode) {
       err.statusCode = 500;
     }
@@ -218,8 +157,8 @@ exports.deleteUser = async (req, res, next) => {
       error.statusCode = 404;
       next(error);
     }
-    res.status(200).json({ message: 'Success', user: userDelete });
-  }catch(err) {
+    res.status(200).json({ msg: 'Success', user: userDelete });
+  } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
     }

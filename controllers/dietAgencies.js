@@ -5,7 +5,9 @@ const Users = require('../models/user');
 
 exports.getAllDietAgency = async (req, res, next) => {
   try {
-    const dietitianList = await Dietitian.find({ isDietitians : true });
+    const dietitianList = await Dietitian.find({ isDietitians : true })
+                                        .sort([['name', 'asc']])
+                                        .select('name email');
     if (!dietitianList) {
       const error = new Error('Could not find a diet agency');
       error.statusCode = 404;
@@ -22,7 +24,7 @@ exports.getAllDietAgency = async (req, res, next) => {
 
 exports.getDietAgency = async (req, res, next) => {
   try {
-    const dietitian = await Dietitian.findById(req.params.id);
+    const dietitian = await Dietitian.findById(req.params.id).select('-isDietitians -dateCreated');
     if (!dietitian) {
       const error = new Error('Could not find diet agency');
       error.statusCode = 404;
@@ -39,14 +41,14 @@ exports.getDietAgency = async (req, res, next) => {
 
 exports.getMyDietAgency = async (req, res, next) => {
   try {
-    const user = await Users.findById(req.userId).select('-passwordHash');
+    const user = await Users.findById(req.userId).select('dietAgency');
     if (user.dietAgency.length === 0) {
       const error = new Error('Could not find a diet agency');
       error.statusCode = 404;
       throw error;
     }
     const dietAgencyId = user.dietAgency[0];
-    const dietAgency = await Dietitian.find({ _id: dietAgencyId });
+    const dietAgency = await Dietitian.find({ _id: dietAgencyId }).select('-dateCreated');
     res.status(200).json({ msg: 'Success', data: dietAgency });
   } catch(err) {
     if (!err.statusCode) {
@@ -56,7 +58,7 @@ exports.getMyDietAgency = async (req, res, next) => {
   }
 }
 
-exports.addDietAgency = async (req, res, next) => { //to test
+exports.addDietAgency = async (req, res, next) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -75,7 +77,7 @@ exports.addDietAgency = async (req, res, next) => { //to test
         country: req.body.country
     });
     const savedDietitian = await dietitian.save();
-    const user = await Users.findById(req.userId);
+    const user = await Users.findById(req.userId).select('dietAgency');
     user.dietAgency.push(dietitian);
     await user.save();
     res.status(201).json({ msg: 'Success', data: savedDietitian });
@@ -95,16 +97,16 @@ exports.editDietAgency = async (req, res, next) => {
       error.statusCode = 422;
       throw error;
     }
-    const user = await Users.findById(req.userId);
+    const user = await Users.findById(req.userId).select('dietAgency');
     if (user.dietAgency.length === 0) {
       const error = new Error('Could not find a diet agency');
       error.statusCode = 404;
       throw error;
     }
     const dietAgencyId = user.dietAgency[0];
-    const dietitianFind = await Dietitian.findById(dietAgencyId.toString());
+    const dietitianFind = await Dietitian.findById(dietAgencyId.toString()).select('-dateCreated');
     const dietitianUpdate = await Dietitian.findByIdAndUpdate(
-      req.params.id,
+      dietAgencyId.toString(),
       {
         name: req.body.name ? req.body.name : dietitianFind.name,
         email: req.body.email ? req.body.email : dietitianFind.email,
@@ -131,7 +133,7 @@ exports.editDietAgency = async (req, res, next) => {
 
 exports.deleteDietAgency = async (req, res, next) => {
   try {
-    const user = await Users.findById(req.userId);
+    const user = await Users.findById(req.userId).select('dietAgency');
     if (user.dietAgency.length === 0) {
       const error = new Error('Could not find a diet agency');
       error.statusCode = 404;
