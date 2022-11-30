@@ -149,7 +149,7 @@ exports.updateMyProfile = async (req, res, next) => {
   }
 }
 
-exports.deleteUser = async (req, res, next) => {
+exports.deleteMyProfile = async (req, res, next) => {
   try {
     const userDelete = await User.findByIdAndRemove(req.userId);
     if (!userDelete){

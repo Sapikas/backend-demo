@@ -58,7 +58,7 @@ exports.getMyDietAgency = async (req, res, next) => {
   }
 }
 
-exports.addDietAgency = async (req, res, next) => {
+exports.createDietAgency = async (req, res, next) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -89,7 +89,7 @@ exports.addDietAgency = async (req, res, next) => {
   }
 }
 
-exports.editDietAgency = async (req, res, next) => {
+exports.updateDietAgency = async (req, res, next) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -141,7 +141,7 @@ exports.deleteDietAgency = async (req, res, next) => {
     }
     const dietAgencyId = user.dietAgency[0];
     const dietitianDelete = await Dietitian.findByIdAndRemove(dietAgencyId.toString());
-    user.dietAgency.pull(req.params.id);
+    user.dietAgency.pull(dietAgencyId);
     await user.save();
     res.status(200).json({
       msg: 'Success',

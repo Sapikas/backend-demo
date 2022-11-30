@@ -86,6 +86,6 @@ router.put('/myprofile', isAuth,
     authController.updateMyProfile
 );
 
-router.delete('/myprofile', isAuth, rolePermission('deleteOwn', 'profile'), authController.deleteUser);
+router.delete('/myprofile', isAuth, rolePermission('deleteOwn', 'profile'), authController.deleteMyProfile);
 
 module.exports = router;

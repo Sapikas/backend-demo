@@ -34,7 +34,7 @@ router.post('/', isAuth,
             })
             .normalizeEmail()
     ],
-    dietAgencyController.addDietAgency
+    dietAgencyController.createDietAgency
 );
 
 router.put(
@@ -55,7 +55,7 @@ router.put(
     ],
     isAuth,
     rolePermission('updateOwn', 'dietAgency'),
-    dietAgencyController.editDietAgency
+    dietAgencyController.updateDietAgency
 );
 
 router.delete('/mydietagency', isAuth, rolePermission('deleteOwn', 'dietAgency'), dietAgencyController.deleteDietAgency);
