@@ -5,15 +5,25 @@ const Users = require('../models/user');
 
 exports.getAllDietAgency = async (req, res, next) => {
   try {
+    const currentPage = req.query.page || 1;
+    const perPage = 2;
+    let totalItems;
     const dietitianList = await Dietitian.find({ isDietitians : true })
                                         .sort([['name', 'asc']])
-                                        .select('name email');
+                                        .select('name email')
+                                        .skip((currentPage - 1) * perPage)
+                                        .limit(perPage);
     if (!dietitianList) {
       const error = new Error('Could not find a diet agency');
       error.statusCode = 404;
       throw error;
     }
-    res.status(200).json({ msg: 'Success', data: dietitianList });
+    totalItems = await Dietitian.find({ isDietitians : true }).countDocuments();
+    res.status(200).json({
+      msg: 'Success',
+      data: dietitianList,
+      totalItems: totalItems
+   });
   } catch(err) {
     if (!err.statusCode) {
       err.statusCode = 500;
