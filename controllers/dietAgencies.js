@@ -10,7 +10,7 @@ exports.getAllDietAgency = async (req, res, next) => {
     let totalItems;
     const dietitianList = await Dietitian.find({ isDietitians : true })
                                         .sort([['name', 'asc']])
-                                        .select('name email')
+                                        .select('name city')
                                         .skip((currentPage - 1) * perPage)
                                         .limit(perPage);
     if (!dietitianList) {
