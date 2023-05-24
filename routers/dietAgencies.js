@@ -11,7 +11,7 @@ router.get('/', isAuth, dietAgencyController.getAllDietAgency);
 
 router.get('/mydietagency', isAuth, dietAgencyController.getMyDietAgency);
 
-router.get('/:id', isAuth, dietAgencyController.getDietAgency);
+router.get('/:name', isAuth, dietAgencyController.getDietAgency);
 
 router.post("/search", isAuth, async (req,res)=>{
     let payload = req.body.payload.trim();

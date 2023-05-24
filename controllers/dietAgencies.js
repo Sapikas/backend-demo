@@ -34,7 +34,7 @@ exports.getAllDietAgency = async (req, res, next) => {
 
 exports.getDietAgency = async (req, res, next) => {
   try {
-    const dietitian = await Dietitian.findById(req.params.id).select('-isDietitians -dateCreated');
+    const dietitian = await Dietitian.findOne({ name: req.params.name }).select('-isDietitians -dateCreated');
     if (!dietitian) {
       const error = new Error('Could not find diet agency');
       error.statusCode = 404;
